@@ -31,16 +31,16 @@ public class EmployeeService {
 
     public Employee findEmployee(String firstName, String lastName) {
         Employee employee = new Employee(firstName, lastName);
-        if (employees.containsKey(employee.getFullName())){
+        if (employees.containsKey(employee.getFullName())) {
             return employees.get(employee.getFullName());
         }
-            throw new EmployeeNotFoundException("сотрудник не найден");
+        throw new EmployeeNotFoundException("сотрудник не найден");
     }
 
     public Employee removeEmployee(String firstName, String lastName) {
         Employee employee = findEmployee(firstName, lastName);
-            employees.remove(employee.getFullName());
-            return employee;
+        employees.remove(employee.getFullName());
+        return employee;
     }
 
     public Collection<Employee> printEmployee() {
@@ -49,12 +49,16 @@ public class EmployeeService {
 
     // отделы --------------------------------------------------------------
 
-    public Employee findMaxSalaryEmployeeDepartment(int numberDepartmentId) {
+    public List<Employee> findMaxSalaryEmployeeDepartment(int numberDepartmentId) {
         List<Employee> employeesList = new ArrayList<>(employees.values());
-        return  employeesList.stream()
+        Employee max = employeesList.stream()
                 .filter(e -> e.getDepartment() == numberDepartmentId)
                 .max((e1, e2) -> (int) (e1.getSalary() - e2.getSalary()))
                 .orElseThrow(() -> new EmployeeNotFoundException("в отделе нет сотрудников"));
+
+        return  employeesList.stream()
+                .filter(e -> e.getSalary() == max.getSalary())
+                .collect(Collectors.toList());
 
          /* Employee employee = null;
         float max = Integer.MIN_VALUE;
@@ -71,13 +75,18 @@ public class EmployeeService {
         return employee;*/
     }
 
-    public Employee findMinSalaryEmployeeDepartment(int numberDepartmentId) {
+    public List<Employee> findMinSalaryEmployeeDepartment(int numberDepartmentId) {
         List<Employee> employeesList = new ArrayList<>(employees.values());
 
-        return  employeesList.stream()
+         Employee min = employeesList.stream()
                 .filter(e -> e.getDepartment() == numberDepartmentId)
                 .min((e1, e2) -> (int) (e1.getSalary() - e2.getSalary()))
                 .orElseThrow(() -> new EmployeeNotFoundException("в отделе нет сотрудников"));
+
+         return  employeesList.stream()
+                 .filter(e -> e.getSalary() == min.getSalary())
+                 .collect(Collectors.toList());
+
 
 
        /* Employee employee = null;
@@ -95,11 +104,13 @@ public class EmployeeService {
         return employee;*/
     }
 
-    public List<Employee>  printListEmployeesDepartment(int numberDepartmentId) {
+    public Map<Integer, List<Employee>> printListEmployeesDepartment(Integer numberDepartmentId) {
         List<Employee> employeesList = new ArrayList<>(employees.values());
-        return  employeesList.stream()
-                .filter(e -> e.getDepartment() == numberDepartmentId)
-                .collect( Collectors.toList() );
+        return employeesList.stream()
+                .filter(e -> numberDepartmentId == null || e.getDepartment() == numberDepartmentId)
+                .collect(Collectors.groupingBy(Employee::getDepartment, Collectors.mapping(e -> e, Collectors.toList())));
+
+
 //                .orElseThrow(() -> new EmployeeNotFoundException("в отделе нет сотрудников"));
 
        /* for (Employee employee : employeesList) {
@@ -110,12 +121,12 @@ public class EmployeeService {
         }*/
     }
 
-    public List<Employee>  printListEmployeesPerDepartment() {
+   /* public List<Employee>  printListEmployeesPerDepartment() {
         List<Employee> employeesList = new ArrayList<>(employees.values());
 
         return employeesList.stream()
                 .sorted(Comparator.comparingInt(Employee::getDepartment))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
 
        /* for(Integer dep : departments){
             System.out.println("Сотрудники департамента" + dep);
@@ -128,8 +139,6 @@ public class EmployeeService {
 
 
 
-
-    }
 
 
 
